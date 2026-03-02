@@ -11,16 +11,24 @@ jobs:
       #  with:
       #    repository: ${{ vars.REPOSITORY }}
       #    ref: ${{ vars.REF }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7.1.4
-        
+      - name: Create venv
+        run: uv venv --python 3.12     
+      
       - name: Install dependencies
         run: uv sync --dev
         
-      - name: Install sentence-transformers
-        run: uv pip install sentence-transformers
-        
+      - name: Install sentence-transformers into venv
+        run: uv pip install --python .venv sentence-transformers
+      - name: Sanity check import
+        run: uv run python -c "from sentence_transformers import SentenceTransformer; print('OK', SentenceTransformer)"        
+      
       - name: Run script
         env:
           ZOTERO_ID: ${{ secrets.ZOTERO_ID }}
